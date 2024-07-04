@@ -1,74 +1,63 @@
+import 'package:cyberbot_demo/app/network/http_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+
+import 'app/global.dart';
+import 'app/logger.dart';
+import 'app/res/intl.dart';
+import 'app/route_observers.dart';
+import 'app/routes.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runInitApp(MyApp());
+}
+
+///初始化操作
+void runInitApp(Widget app) async {
+  Logger.init(tag: 'init app',isDebug: isDebug);
+  ///初始化本地数据
+  // await AppData.initData();
+  HttpService.doInit();
+  runApp(app);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,//强制竖屏
+      DeviceOrientation.portraitDown
+    ]);
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+    return ScreenUtilInit(
+        designSize: const Size(750, 1080),
+        builder: (context,child) => GetMaterialApp(
+          translations: Intl(),
+          enableLog: true,
+          initialRoute: Routes.home,
+          getPages: Routes.getPages,
+          navigatorObservers: [RouteObservers()],
+          locale: Intl().locales[0],
+          fallbackLocale: Intl().locales[0], ///默认语言选项
+          supportedLocales: Intl().locales,
+          localizationsDelegates: const [
+            // S.delegate,
+            GlobalMaterialLocalizations.delegate, /// 指定本地化的字符串和一些其他的值
+            GlobalCupertinoLocalizations.delegate, /// 对应的Cupertino风格
+            GlobalWidgetsLocalizations.delegate, /// 指定默认的文本排列方向, 由左到右或由右到左
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          builder: (context,widget){
+            return MediaQuery(///设置文字大小不随系统设置改变
+                data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                child: widget ?? Container()
+            );
+          },
+        )
     );
   }
 }
