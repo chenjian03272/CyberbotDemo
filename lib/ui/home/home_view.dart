@@ -10,6 +10,7 @@ import '../../app/res/my_style.dart';
 import '../../app/routes.dart';
 import '../widget/header_bar.dart';
 import '../widget/load_state.dart';
+import '../widget/search_bar_delegate.dart';
 import 'home_logic.dart';
 
 class HomePage extends StatefulWidget {
@@ -48,7 +49,8 @@ class _HomePageState extends State<HomePage> {
         logic.changeShowType();
       },
       onRightFirstClick: (){
-
+        //搜索电影
+        showSearch(context: context, delegate: MySearchDelegate());
       },
       onRightSecondClick: (){
         //类型筛选
@@ -63,8 +65,6 @@ class _HomePageState extends State<HomePage> {
             curve: const ElasticOutCurve()
           );
         });
-
-
       },
     );
   }

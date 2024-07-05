@@ -1,4 +1,4 @@
-import 'package:cyberbot_demo/app/global.dart';
+import 'package:cyberbot_demo/app/res/intl.dart';
 import 'package:cyberbot_demo/ui/widget/load_state.dart';
 import 'package:get/get.dart';
 
@@ -10,6 +10,8 @@ class HomeState {
   HomeState() {
     ///Initialize variables
   }
+  ///当前标题
+  var title = Intl().homePageTitle.obs;
   ///电影页码
   var page = 1.obs;
   ///电影列表

@@ -72,9 +72,11 @@ class HeaderBarState extends State<HeaderBar> {
           ),
           Container(
             alignment: Alignment.center,
-            child: Text(
-              widget.title,
-              style: TextStyle(color: Colors.white, fontSize: Dimens.d_40.sp),
+            child: Obx(() =>
+                Text(
+                  state.title.value,
+                  style: TextStyle(color: Colors.white, fontSize: Dimens.d_40.sp),
+                )
             ),
           ),
           //右边

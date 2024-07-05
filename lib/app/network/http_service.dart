@@ -24,8 +24,6 @@ class HttpService{
         // options.headers["Content-Type"] = "application/x-www-form-urlencoded";
         options.headers["accept"] = "application/json";
         options.headers["Authorization"] = Global.Authorization;
-
-        // options.headers["Accept-Language"] = Intl().currentLocale().languageCode;
         //公用参数
         String language = Get.locale?.languageCode?? Intl().locales[0].languageCode;
         var commonParams = {"api_key": Global.key, "language": language};
@@ -81,9 +79,25 @@ class HttpService{
     return buildFuture<MovieGenresEntity>(()=> _client.getGenreList(),loading: true);
   }
 
-  // static Future<String> queryArticle(Map<String,dynamic> params,){
-  //   return buildFuture<String>(()=> _client.queryArticle(params),loading: false);
-  // }
+  // https://api.themoviedb.org/3/discover/movie?
+//           include_adult=false&
+//           include_video=false&
+//           language=en-US&
+//           page=1&
+//           sort_by=primary_release_date.desc&
+//           with_genres=28
+
+  static Future<MovieListEntity> getAllMovies(int page, {int genres = Global.DefaultGenres}){
+    Map<String,dynamic> params = <String,dynamic>{};
+    params["include_adult"] = false;
+    params["include_video"] = false;
+    params["page"] = page;
+    params["sort_by"] = "primary_release_date.desc";
+    if(genres != Global.DefaultGenres){
+      params["with_genres"] = genres;
+    }
+    return buildFuture<MovieListEntity>(()=> _client.getAllMovies(params),loading: false);
+  }
 
 
 

@@ -8,20 +8,23 @@ import 'package:cyberbot_demo/ui/widget/load_state.dart';
 import 'package:get/get.dart';
 
 import '../../bean/movie_list_entity.dart';
+import '../../db/genres_provider.dart';
+import '../../db/movie_list_results.dart';
 import 'home_state.dart';
 
 class HomeLogic extends GetxController {
   final HomeState state = HomeState();
   ///被选中的类型
-  int _genresSelectIndex = 0;
+  int _genresSelectIndex = Global.DefaultGenres;
 
 
   @override
-  void onReady() {
+  void onReady() async{
     super.onReady();
 
-    onRefreshList();
     reqMoviesGenrs();
+    onRefreshList();
+
   }
 
   @override
@@ -38,29 +41,43 @@ class HomeLogic extends GetxController {
   }
   ///加载更多
   void onLoadMore(){
+
+
     state.loadState.value = LoadState.LOADING;
     _reqMoviesList();
   }
 
   ///请求电影列表
   void _reqMoviesList() async{
-    MovieListEntity result =  await HttpService.getMoviesList(state.page.value);
+    int genres = Global.DefaultGenres;
+    if(state.genresList.value.isNotEmpty){
+      genres = state.genresList.value[_genresSelectIndex].id;
+    }
+    MovieListEntity result =  await HttpService.getAllMovies(state.page.value, genres: genres);
     if(result.results.isNotEmpty){
       var preList = RxList<Results>() ;
       preList.addAll(state.moviesList.value);
+
+      var newList = RxList<Results>();
       for(Results item in result.results){
         if(item.posterPath != ""){
           item.posterPath = Global.Image_Pre + item.posterPath;
-          preList.add(item);
+          newList.add(item);
         }
       }
+      preList.addAll(newList);
       state.moviesList.value = preList;
+      //添加到数据库
+      MoviesResultProvider().inserts(newList);
+
       state.itemCount.value = preList.length;
       state.page.value ++ ;
       state.loadState.value = LoadState.LOADED;
+      //因为海报不够一屏幕， 无法触底 加载更多， 因此自动触发(这边默认 12 个刚好一屏，  没有细算 ，大概估了一个数值)
+      if(state.moviesList.value.length <= 12){
+        onLoadMore();
+      }
     }
-    // loggerE(result.results);
-
   }
 
   void changeShowType(){
@@ -88,6 +105,9 @@ class HomeLogic extends GetxController {
       all.isCheck = true;
       newList.add(all);
       newList.addAll(genres.genres);
+
+      // GenresProvider().inserts(newList);
+
       state.genresList.value = newList;
     }
   }
@@ -97,9 +117,12 @@ class HomeLogic extends GetxController {
     if(selectIndex == _genresSelectIndex){
       return false;
     }
+    state.title.value = state.genresList.value[selectIndex].name;
     state.genresList.value[selectIndex].isCheck = true;
     state.genresList.value[_genresSelectIndex].isCheck = false;
     _genresSelectIndex = selectIndex;
+    //重新请求数据
+    onRefreshList();
     return true;
   }
   ///获取当前类型筛选位置

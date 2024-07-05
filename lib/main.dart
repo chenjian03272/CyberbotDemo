@@ -5,11 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
+import 'app/app_data.dart';
 import 'app/global.dart';
 import 'app/logger.dart';
 import 'app/res/intl.dart';
 import 'app/route_observers.dart';
 import 'app/routes.dart';
+import 'db/sqflite_helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,8 @@ void main() {
 void runInitApp(Widget app) async {
   Logger.init(tag: 'init app',isDebug: isDebug);
   ///初始化本地数据
-  // await AppData.initData();
+  await AppData.initData();
+  SqfliteHelper().init();
   HttpService.doInit();
   runApp(app);
 }
