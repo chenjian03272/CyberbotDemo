@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 
 import '../../app/res/dimens.dart';
 import '../../app/res/images.dart';
+import '../../app/routes.dart';
 import '../../bean/movie_list_entity.dart';
 import '../../db/movie_list_results.dart';
 import 'hero_widget.dart';
@@ -101,6 +102,7 @@ class MySearchDelegate extends SearchDelegate<String> {
                         height: Dimens.d_120.h,
                         child: InkWell(
                           child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 HeroWidget(
                                     tag: "${_searchResult[index].id}",
@@ -116,21 +118,34 @@ class MySearchDelegate extends SearchDelegate<String> {
                                     )
                                 ),
                                 SizedBox(width: Dimens.d_20.w,),
-                                Column(
-                                  children: [
-                                    Text(_searchResult[index].title, style: TextStyle(fontSize: Dimens.d_30.sp, color: Colors.black, fontWeight: FontWeight.bold),),
-                                    SizedBox(width: Dimens.d_15.h,),
-                                    Text(_searchResult[index].overview,
-                                      style: TextStyle(fontSize: Dimens.d_20.sp, color: Colors.grey,
-                                        fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis),
-                                        maxLines: 2,
-                                    ),
-                                  ],
+                                Expanded(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(_searchResult[index].title, style:
+                                              TextStyle(fontSize: Dimens.d_30.sp,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                overflow: TextOverflow.ellipsis
+                                              ),maxLines: 1,),
+                                        SizedBox(width: Dimens.d_15.h,),
+                                        Text(_searchResult[index].overview,
+                                          style: TextStyle(fontSize: Dimens.d_20.sp, color: Colors.grey,
+                                              fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis),
+                                          maxLines: 2,
+                                        ),
+                                      ],
+                                    )
                                 )
                               ],
                           ),
                           onTap: (){
                             loggerE("点击了${_searchResult[index].title}");
+                            Get.toNamed(Routes.detail,
+                                arguments: {"posterPath": _searchResult[index].posterPath,
+                                  "id":_searchResult[index].id, "index":index} ,
+                                parameters: _searchResult[index].toStringJson());
                           },
                         )
                       );
@@ -165,8 +180,9 @@ class MySearchDelegate extends SearchDelegate<String> {
                               ]),
                     ),
             ),
-            onTap: () {
-              _loadData();
+            onTap: () async{
+              query = suggestionsList[index];
+              await _loadData();
               showResults(context);
             },
           );

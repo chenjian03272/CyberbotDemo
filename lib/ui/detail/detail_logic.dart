@@ -1,15 +1,12 @@
-import 'package:cyberbot_demo/app/logger.dart';
 import 'package:cyberbot_demo/bean/movie_list_entity.dart';
 import 'package:get/get.dart';
 
 import '../../app/global.dart';
-import '../home/home_logic.dart';
 import 'detail_state.dart';
 
 class DetailLogic extends GetxController {
   final DetailState state = DetailState();
 
-  final stateHome = Get.find<HomeLogic>().state;
 
   ///电影Id
   int movieId = 0;
@@ -23,12 +20,9 @@ class DetailLogic extends GetxController {
   }
 
   Results? getSelectMoviesItem(){
-    int index = Get.arguments["index"] as int;
-    if(index >= 0  && stateHome.moviesList.value.length > index){
-      return stateHome.moviesList.value[index];
-    }
-
-    return null;
+    Map<String, String?> map = Get.parameters;
+    Results results = Results.fromStringJson(map);
+    return results;
   }
 
 

@@ -81,7 +81,8 @@ class _HomePageState extends State<HomePage> {
                 (index){
               Get.toNamed(Routes.detail,
                   arguments: {"posterPath": state.moviesList.value[index].posterPath,
-                    "id":state.moviesList.value[index].id, "index":index} );
+                    "id":state.moviesList.value[index].id, "index":index} ,
+                  parameters: state.moviesList.value[index].toStringJson());
             }
         ):
         const MoviesPageView()//翻页

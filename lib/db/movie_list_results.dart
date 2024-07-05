@@ -34,14 +34,22 @@ class MoviesResultProvider{
     _database = SqfliteHelper().database;
   }
 
+  ///插入单个
   Future insert(Results results) async {
+    Results? r = await query(results.id);
+    if(r != null){
+      return Future(() => null);
+    }
     return await _database.insert(_table, results.toSqlJson());
   }
-
+  ///批量插入
   Future inserts(List<Results> results) async {
     Batch batch = _database.batch();
     for(Results result in results){
-      batch.insert(_table, result.toSqlJson());
+      Results? r = await query(result.id);
+      if(r == null){
+        batch.insert(_table, result.toSqlJson());
+      }
     }
     return await batch.commit();
   }
@@ -67,7 +75,7 @@ class MoviesResultProvider{
       columns: [_id, _title, _originalTitle, _overview, _posterPath, _releaseDate, _genreIds, _originalLanguage],
       where: "$_title  LIKE ?",
       whereArgs: ['%$searchKey%'],
-      limit: 1,
+      // limit: 1,
     );
     List<Results> list = [];
     for(Map<String, dynamic> map in maps){

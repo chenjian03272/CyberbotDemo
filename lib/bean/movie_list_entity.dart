@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'movie_list_entity.g.dart';
@@ -116,7 +118,7 @@ class Results extends Object {
       json['adult'] == 1,
       gids,
       (json['id'] as num).toInt(),
-      json['original_language']??"" as String,
+      json['original_language']??"",
       json['original_title']??"" as String,
       json['overview']??"" as String,
       (json['popularity']??0 as num).toDouble(),
@@ -126,6 +128,61 @@ class Results extends Object {
       json['video'] == 1,
       (json['vote_average']??0 as num).toInt(),
       (json['vote_count']??0 as num).toInt(),
+    );
+  }
+
+
+  Map<String, String> toStringJson() {
+    String ids = '';
+    for(int id in genreIds){
+      if(ids == ''){
+        ids = id.toString();
+      }else{
+        ids = "$ids,$id";
+      }
+    }
+
+    return <String, String>{
+      'adult': '${adult?1:0}',
+      'genre_ids': ids,
+      'id': id.toString(),
+      'original_language': originalLanguage,
+      'original_title': originalTitle,
+      'overview': overview,
+      'popularity': popularity.toString(),
+      'poster_path': posterPath,
+      'release_date': releaseDate,
+      'title': title,
+      'video': '${video?1:0}',
+      'vote_average': voteAverage.toString(),
+      'vote_count': voteCount.toString(),
+    };
+  }
+
+  factory Results.fromStringJson(Map<String, String?> json){
+    String ids = json['genre_ids']??"";
+    List<int> gids = [];
+    if(ids.isNotEmpty){
+      List<String> genres = ids.split(",");
+      for(String gid in genres){
+        gids.add(int.parse(gid));
+      }
+    }
+
+    return Results(
+      int.parse(json['adult']??"0") == 1,
+      gids,
+      int.parse(json['id']??"0"),
+      json['original_language']??"",
+      json['original_title']??"" ,
+      json['overview']??"" ,
+      double.parse(json['popularity']??"0"),
+      json['poster_path']??"" ,
+      json['release_date']??"" ,
+      json['title']??"" ,
+      int.parse(json['video']??"0") == 1,
+      int.parse(json['vote_average']??"0"),
+      int.parse(json['vote_count']??"0"),
     );
   }
 
